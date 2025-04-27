@@ -2,15 +2,14 @@ package net.typicartist.discord.game.sdk.structure;
 
 import java.util.List;
 import com.sun.jna.Structure;
-import net.typicartist.discord.game.sdk.enums.ImageType;
 
-public class ImageHandle extends Structure {
-    public ImageType type;
-    public long id;
+public class FileStat extends Structure {
+    public byte[] filename = new byte[128];
     public long size;
+    public long last_modified;
 
     @Override
     protected List<String> getFieldOrder() {
-        return List.of("type", "id", "size");
+        return List.of("filename", "size", "last_modified");
     }
 }
