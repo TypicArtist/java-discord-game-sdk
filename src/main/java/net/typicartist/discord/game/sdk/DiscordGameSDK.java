@@ -11,6 +11,7 @@ import net.typicartist.discord.game.sdk.exception.ResultException;
 import net.typicartist.discord.game.sdk.structure.FFICreateParams;
 import net.typicartist.discord.game.sdk.structure.FFIEvents;
 import net.typicartist.discord.game.sdk.structure.FFIMethods;
+import net.typicartist.discord.game.sdk.utils.EnumUtil;
 
 public class DiscordGameSDK {
     private interface DiscordGameSDKLibrary extends Library {
@@ -36,8 +37,8 @@ public class DiscordGameSDK {
         
         PointerByReference managerRef = new PointerByReference();
 
-        Result result = Result.fromCode(DiscordGameSDKLibrary.INSTANCE.DiscordCreate(3, createParams, managerRef));
-  
+        Result result = EnumUtil.fromCode(Result.class, DiscordGameSDKLibrary.INSTANCE.DiscordCreate(3, createParams, managerRef));
+
         if (result != Result.Ok) {
             this.dispose();
             throw new ResultException(result);

@@ -1,7 +1,7 @@
 package net.typicartist.discord.game.sdk.utils;
 
 public class EnumUtil {
-    public static <E extends Enum<E>> String fromCode(Class<E> enumClass, int code) {
+    public static <E extends Enum<E>> E fromCode(Class<E> enumClass, int code) {
         for (E e : enumClass.getEnumConstants()) {
             /*
                 if (e.getCode() == code) {
@@ -14,7 +14,7 @@ public class EnumUtil {
                 int value = field.getInt(e);
 
                 if (value == code) {
-                    return e.name();
+                    return e;
                 }
             } catch (NoSuchFieldException | IllegalAccessException exception) {
                 exception.printStackTrace();
