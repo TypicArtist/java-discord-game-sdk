@@ -1,14 +1,12 @@
 package net.typicartist.discord.game.sdk.constants;
 
-public enum LogLevel {
-    Error(1),
-    Warn(2),
-    Info(3),
-    Debug(4);
+public enum ActivityPartyPrivacy {
+    Private(0),
+    Public(1);
 
     private final int code;
 
-    LogLevel(int code) {
+    ActivityPartyPrivacy(int code) {
         this.code = code;
     }
 

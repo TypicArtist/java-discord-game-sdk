@@ -1,14 +1,14 @@
 package net.typicartist.discord.game.sdk.constants;
 
-public enum LogLevel {
-    Error(1),
-    Warn(2),
-    Info(3),
-    Debug(4);
+public enum ActivityType {
+    Playing(0),
+    Streaming(1),
+    Listening(2),
+    Watching(3);
 
     private final int code;
 
-    LogLevel(int code) {
+    ActivityType(int code) {
         this.code = code;
     }
 

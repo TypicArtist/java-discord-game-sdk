@@ -53,15 +53,6 @@ public enum Result {
         this.code = code;
     }
 
-    public static Result fromCode(int code) {
-        for (Result result : Result.values()) {
-            if (result.getCode() == code) {
-                return result;
-            }
-        }
-        return null;
-    }
-
     public int getCode() {
         return code;
     }

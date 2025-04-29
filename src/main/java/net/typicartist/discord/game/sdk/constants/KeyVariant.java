@@ -1,14 +1,13 @@
 package net.typicartist.discord.game.sdk.constants;
 
-public enum LogLevel {
-    Error(1),
-    Warn(2),
-    Info(3),
-    Debug(4);
+public enum KeyVariant {
+    Normal(0),
+    Right(1),
+    Left(2);
 
     private final int code;
 
-    LogLevel(int code) {
+    KeyVariant(int code) {
         this.code = code;
     }
 

@@ -1,14 +1,14 @@
 package net.typicartist.discord.game.sdk.constants;
 
-public enum LogLevel {
-    Error(1),
-    Warn(2),
-    Info(3),
-    Debug(4);
+public enum LobbySearchDistance {
+    Local(0),
+    Default(1),
+    Extended(2),
+    Global(3);
 
     private final int code;
 
-    LogLevel(int code) {
+    LobbySearchDistance(int code) {
         this.code = code;
     }
 

@@ -2,16 +2,15 @@ package net.typicartist.discord.game.sdk.structure;
 
 import java.util.List;
 
-import javax.security.auth.callback.Callback;
-
+import com.sun.jna.Callback;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 
 import net.typicartist.discord.game.sdk.constants.LogLevel;
 
 public class FFIMethods {
-    public class Core extends Structure {
-        public static class ByReference extends FFIMethods implements Structure.ByReference {}
+    public static class Core extends Structure {
+        public static class ByReference extends Core implements Structure.ByReference {}
 
         public interface DestroyHandler extends Callback {
             void invoke(Pointer methodsPtr);
@@ -50,10 +49,12 @@ public class FFIMethods {
         public GetManagerMethod getAchievementManager;
 
         public Core() {
+
         }
 
-        public Core(Pointer pointer) {
-            super(pointer);
+        public Core(Pointer methodPtr) {
+            super(methodPtr);
+            
             read();
         }
 

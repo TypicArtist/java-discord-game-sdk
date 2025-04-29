@@ -1,14 +1,14 @@
 package net.typicartist.discord.game.sdk.constants;
 
-public enum LogLevel {
-    Error(1),
-    Warn(2),
-    Info(3),
-    Debug(4);
+public enum SkuType {
+    Application(1),
+    DLC(2),
+    Consumable(3),
+    Bundle(4);
 
     private final int code;
 
-    LogLevel(int code) {
+    SkuType(int code) {
         this.code = code;
     }
 
