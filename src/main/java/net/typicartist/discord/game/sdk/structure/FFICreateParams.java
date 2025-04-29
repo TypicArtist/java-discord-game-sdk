@@ -1,4 +1,4 @@
-package net.typicartist.discord.game.sdk.struct;
+package net.typicartist.discord.game.sdk.structure;
 
 import java.util.List;
 
@@ -6,6 +6,8 @@ import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 
 public class FFICreateParams extends Structure {
+    public static class ByReference extends FFICreateParams implements Structure.ByReference {}
+    
     public long clientId;
     public long flags;
     public Pointer events;
