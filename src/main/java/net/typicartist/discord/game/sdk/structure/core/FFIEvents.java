@@ -1,7 +1,6 @@
-package net.typicartist.discord.game.sdk.structure;
+package net.typicartist.discord.game.sdk.structure.core;
 
 import java.util.List;
-
 import com.sun.jna.Structure;
 
 public class FFIEvents extends Structure {
