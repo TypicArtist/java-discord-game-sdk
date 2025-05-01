@@ -1,37 +1,63 @@
 package net.typicartist.discord.game.sdk.utils;
 
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.sun.jna.Pointer;
 
 public final class GCHandle {
-    private static final Map<Long, Object> store = new ConcurrentHashMap<>();
-    private static final AtomicLong nextId = new AtomicLong(1);
+    private static final ConcurrentHashMap<Long, Object> objectMap = new ConcurrentHashMap<>();
+    private static final AtomicLong idGenerator = new AtomicLong(1);
 
-    private final long handle;
+    private final long id;
+    private final Object target;
+    private boolean allocated;
 
-    private GCHandle(long handle) {
-        this.handle = handle;
+    private GCHandle(Object obj) {
+        this.target = obj;
+        this.id = idGenerator.getAndDecrement();
+        this.allocated = true;
+        objectMap.put(id, obj);
+    }
+
+    public static GCHandle alloc(Object target ) {
+        return new GCHandle(target);
     }
 
     public void free() {
-        store.remove(handle);
-    } 
+        if (allocated) {
+            objectMap.remove(id);
+            allocated = false;
+        }
+    }
 
-    public static GCHandle alloc(Object obj) {
-        long id = nextId.getAndIncrement();
-        store.put(id, obj);
-        return new GCHandle(id);
+    public boolean isAllocated() {
+        return allocated;
+    }
+
+    public Object getTarget() {
+        if (!allocated) {
+            throw new IllegalStateException("GCHandle is no longer allocated");
+        }
+
+        return target;
+    }
+
+    public Pointer toPtr() {
+        if (!allocated) {
+            throw new IllegalStateException("GCHandle is no longer allocated");
+        }
+
+        return new Pointer(id);
     }
 
     public static GCHandle fromPtr(Pointer ptr) {
-        long handle = Pointer.nativeValue(ptr);
-        return new GCHandle(handle);
-    }
+        long id = ptr.getLong(0);
+        Object target = objectMap.get(id);
+        if (target == null) {
+            throw new IllegalArgumentException("Invalid pointer, object not found.");
+        }
 
-    public static Pointer toPtr(GCHandle gcHandle) {
-        return Pointer.createConstant(gcHandle.handle);
+        return new GCHandle(target);
     }
 }

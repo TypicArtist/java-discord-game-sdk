@@ -23,11 +23,21 @@ public class DiscordGameSDK {
     }
 
     private GCHandle selfHandle;
+
+    private FFIEvents.ByReference events;
     private Pointer eventsPtr;
+
+    private FFIEvents.ByReference applicationEvents;
+    private Pointer applicationEventsPtr;
+
+    private FFIEvents.ByReference userEvents;
+    private Pointer userEventsPtr;
+
+    private FFIEvents.ByReference imageEvents;
+    private Pointer imageEventsPtr;
 
     private Pointer methodsPtr;
     private Object methodsStructure;
-    private FFIMethods methods;
 
     public DiscordGameSDK(long clientId, CreateFlags flags) {
         FFICreateParams.ByReference createParams = new FFICreateParams.ByReference();
@@ -35,11 +45,31 @@ public class DiscordGameSDK {
         createParams.flags = flags.getCode();
 
         selfHandle = GCHandle.alloc(this);
-        createParams.eventData = GCHandle.toPtr(selfHandle);
+        createParams.eventData = selfHandle.toPtr();
 
-        FFIEvents.ByReference events = new FFIEvents.ByReference();
+        events = new FFIEvents.ByReference();
         eventsPtr = new Memory(events.size());
         createParams.events = eventsPtr;
+
+        applicationEvents = new FFIEvents.ByReference();
+        applicationEventsPtr = new Memory(applicationEvents.size());
+        createParams.applicationEvents = applicationEventsPtr;
+        createParams.applicationVersion = 1;
+
+        userEvents = new FFIEvents.ByReference();
+        userEventsPtr = new Memory(userEvents.size());
+        createParams.userEvents = userEventsPtr;
+        createParams.userVersion = 1;
+
+        imageEvents = new FFIEvents.ByReference();
+        imageEventsPtr = new Memory(imageEvents.size());
+        createParams.imageEvents = imageEventsPtr;
+        createParams.imageVersion = 1;
+
+        
+
+
+
         
         PointerByReference managerRef = new PointerByReference();
 
@@ -51,7 +81,6 @@ public class DiscordGameSDK {
         }
 
         methodsPtr = managerRef.getValue();
-        methods = getMethods();
     }
 
     private FFIMethods getMethods() {
@@ -64,10 +93,9 @@ public class DiscordGameSDK {
 
     public void dispose() {
         if (methodsPtr != Pointer.NULL) {
-            methods.destroy.invoke(methodsPtr);
+            getMethods().destroy.invoke(methodsPtr);
         }
         selfHandle.free();
-
         Native.free(Pointer.nativeValue(eventsPtr));
     }
 
