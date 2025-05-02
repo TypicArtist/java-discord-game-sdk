@@ -16,7 +16,7 @@ public class FFIMethods extends Structure {
     }
 
     public interface RunCallbacksMethod extends Callback {
-        void invoke(Pointer methodPtr);
+        int invoke(Pointer methodPtr);
     }
 
     public interface SetLogHookCallback extends Callback {
