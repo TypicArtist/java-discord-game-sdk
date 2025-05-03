@@ -6,10 +6,12 @@ import com.sun.jna.Structure;
 public class FFIEvents extends Structure {
     public static class ByReference extends FFIEvents implements Structure.ByReference {}
 
-    public byte dummy;
+    public byte _unused = 0;
 
     @Override
     protected List<String> getFieldOrder() {
-        return List.of("dummy");
+        return List.of(
+            "_unused"
+        );
     }    
 }

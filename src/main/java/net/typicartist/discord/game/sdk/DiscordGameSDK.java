@@ -1,5 +1,6 @@
 package net.typicartist.discord.game.sdk;
 
+import com.sun.jna.Callback;
 import com.sun.jna.Library;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
@@ -22,7 +23,8 @@ public class DiscordGameSDK {
         
         int DiscordCreate(int version, FFICreateParams.ByReference createParams, PointerByReference manager);
     }
-    private interface SetLogHookHandler {
+
+    private interface SetLogHookHandler extends Callback {
         void invoke(int level, String message);
     }
 
@@ -72,7 +74,7 @@ public class DiscordGameSDK {
 
     private GCHandle setLogHook;
 
-    public DiscordGameSDK(long clientId, CreateFlags flags) {
+    private DiscordGameSDK(long clientId, CreateFlags flags) {
         FFICreateParams.ByReference createParams = new FFICreateParams.ByReference();
         createParams.clientId = clientId;
         createParams.flags = flags.getCode();
@@ -158,6 +160,10 @@ public class DiscordGameSDK {
         methods = MethodsAccessor.getMethods(methodsPtr, FFIMethods.class);
     }
 
+    public static DiscordGameSDK initialize(long clientId, CreateFlags flags) {
+        return new DiscordGameSDK(clientId, flags);
+    }
+
     public void dispose() {
         if (methodsPtr != Pointer.NULL) {
             methods.destroy.invoke(methodsPtr);
@@ -183,6 +189,7 @@ public class DiscordGameSDK {
 
     public void runCallbacks() {
         var res = methods.runCallbacks.invoke(methodsPtr);
+
         if (res != Result.Ok.getCode()) {
             throw new ResultException(res);
         }
@@ -204,14 +211,29 @@ public class DiscordGameSDK {
     }
 
     public static void main(String[] args) {
-        DiscordGameSDK discord = new DiscordGameSDK(7L, CreateFlags.Default);
+        DiscordGameSDK discord = DiscordGameSDK.initialize(1120354582418165780L, CreateFlags.Default);
 
-        discord.setLogHook(LogLevel.Debug, (level, message) -> {
-            System.out.println("Received log: " + level + " - " + message);
+        discord.setLogHook(LogLevel.Debug, new DiscordGameSDK.SetLogHookHandler() {
+            @Override
+            public void invoke(int level, String message) {
+                System.out.println("Discord Log [" + level + "]: " + message);
+            }
         });
 
-        discord.runCallbacks();
+        new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    discord.runCallbacks();
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                }
 
-        discord.dispose();
+                try {
+                    Thread.sleep(5000L);
+                } catch (InterruptedException exception) {
+                    exception.printStackTrace();
+                }
+            }
+        }, "Discord-Game-SDK-Callback-Handler").start();
     }
 }

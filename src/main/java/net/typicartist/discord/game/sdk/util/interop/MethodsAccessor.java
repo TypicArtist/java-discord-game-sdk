@@ -2,7 +2,6 @@ package net.typicartist.discord.game.sdk.util.interop;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 

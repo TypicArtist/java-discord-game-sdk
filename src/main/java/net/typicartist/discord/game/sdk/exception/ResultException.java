@@ -7,7 +7,7 @@ public class ResultException extends RuntimeException {
     private final Result result;
 
     public ResultException(int result) {
-        super("DiscordCreate failed: " + result);
+        super("Failed: " + result);
 
         this.result = EnumUtil.fromCode(Result.class, result);
     }
