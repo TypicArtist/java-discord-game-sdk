@@ -1,4 +1,4 @@
-package net.typicartist.discord.game.sdk.structure.core;
+package net.typicartist.discord.game.sdk.structure.common;
 
 import java.util.List;
 import com.sun.jna.Structure;

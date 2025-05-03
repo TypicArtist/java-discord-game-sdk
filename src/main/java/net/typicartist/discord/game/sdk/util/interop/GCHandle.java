@@ -1,14 +1,13 @@
-package net.typicartist.discord.game.sdk.utils;
+package net.typicartist.discord.game.sdk.util.interop;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
-
 import com.sun.jna.Pointer;
 
 public final class GCHandle {
     private static final ConcurrentHashMap<Long, Object> objectMap = new ConcurrentHashMap<>();
     private static final AtomicLong idGenerator = new AtomicLong(1);
-
+    
     private final long id;
     private final Object target;
     private boolean allocated;

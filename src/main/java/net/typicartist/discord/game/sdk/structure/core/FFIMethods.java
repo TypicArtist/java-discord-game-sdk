@@ -6,8 +6,6 @@ import com.sun.jna.Callback;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 
-import net.typicartist.discord.game.sdk.constants.LogLevel;
-
 public class FFIMethods extends Structure {
     public static class ByReference extends FFIMethods implements Structure.ByReference {}
 
@@ -24,7 +22,7 @@ public class FFIMethods extends Structure {
     }
 
     public interface SetLogHookMethod extends Callback {
-        void invoke(Pointer methodsPtr, LogLevel minLevel, Pointer callbackData, SetLogHookCallback callback);
+        void invoke(Pointer methodsPtr, int minLevel, Pointer callbackData, SetLogHookCallback callback);
     }
 
     public interface GetManagerMethod extends Callback {

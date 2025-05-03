@@ -5,20 +5,25 @@ import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.PointerByReference;
-
 import net.typicartist.discord.game.sdk.constants.CreateFlags;
+import net.typicartist.discord.game.sdk.constants.LogLevel;
 import net.typicartist.discord.game.sdk.constants.Result;
 import net.typicartist.discord.game.sdk.exception.ResultException;
 import net.typicartist.discord.game.sdk.structure.FFICreateParams;
-import net.typicartist.discord.game.sdk.structure.application.FFIEvents;
+import net.typicartist.discord.game.sdk.structure.common.FFIEvents;
 import net.typicartist.discord.game.sdk.structure.core.FFIMethods;
-import net.typicartist.discord.game.sdk.utils.GCHandle;
+import net.typicartist.discord.game.sdk.util.interop.EventInitializer;
+import net.typicartist.discord.game.sdk.util.interop.GCHandle;
+import net.typicartist.discord.game.sdk.util.interop.MethodsAccessor;
 
 public class DiscordGameSDK {
     private interface DiscordGameSDKLibrary extends Library {
         DiscordGameSDKLibrary INSTANCE = Native.load("discord_game_sdk", DiscordGameSDKLibrary.class);
         
         int DiscordCreate(int version, FFICreateParams.ByReference createParams, PointerByReference manager);
+    }
+    private interface SetLogHookHandler {
+        void invoke(int level, String message);
     }
 
     private GCHandle selfHandle;
@@ -62,8 +67,10 @@ public class DiscordGameSDK {
     private FFIEvents.ByReference achievementEvents;
     private Pointer achievementEventsPtr;
 
+    private FFIMethods methods;
     private Pointer methodsPtr;
-    private Object methodsStructure;
+
+    private GCHandle setLogHook;
 
     public DiscordGameSDK(long clientId, CreateFlags flags) {
         FFICreateParams.ByReference createParams = new FFICreateParams.ByReference();
@@ -137,35 +144,23 @@ public class DiscordGameSDK {
         createParams.achievementEvents = achievementEventsPtr;
         createParams.achievementVersion = 1;
 
-        initEvents(eventsPtr, events);
+        EventInitializer.initEvents(eventsPtr, events);
 
         PointerByReference managerRef = new PointerByReference();
-        int result = DiscordGameSDKLibrary.INSTANCE.DiscordCreate(3, createParams, managerRef);
-        methodsPtr = managerRef.getValue();
+        var result = DiscordGameSDKLibrary.INSTANCE.DiscordCreate(3, createParams, managerRef);
 
         if (result != Result.Ok.getCode()) {
             this.dispose();
             throw new ResultException(result);
         }
-    }
 
-    private void initEvents(Pointer eventsPtr, FFIEvents events) {
-        events.write();
-        events.getPointer().write(0, events.getPointer().getByteArray(0, events.size()), 0, events.size());
-        eventsPtr.write(0, events.getPointer().getByteArray(0, events.size()), 0, events.size());
-    }
-
-    private FFIMethods getMethods() {
-        if (methodsStructure == null) {
-            methodsStructure = new FFIMethods(methodsPtr);
-        }
-
-        return (FFIMethods) methodsStructure;
+        methodsPtr = managerRef.getValue();
+        methods = MethodsAccessor.getMethods(methodsPtr, FFIMethods.class);
     }
 
     public void dispose() {
         if (methodsPtr != Pointer.NULL) {
-            getMethods().destroy.invoke(methodsPtr);
+            methods.destroy.invoke(methodsPtr);
         }
         selfHandle.free();
         Native.free(Pointer.nativeValue(eventsPtr));
@@ -181,17 +176,42 @@ public class DiscordGameSDK {
         Native.free(Pointer.nativeValue(storeEventsPtr));
         Native.free(Pointer.nativeValue(voiceEventsPtr));
         Native.free(Pointer.nativeValue(achievementEventsPtr));
+        if (setLogHook != null) {
+            setLogHook.free();
+        }
     }
 
     public void runCallbacks() {
-        var res = getMethods().runCallbacks.invoke(methodsPtr);
+        var res = methods.runCallbacks.invoke(methodsPtr);
         if (res != Result.Ok.getCode()) {
             throw new ResultException(res);
         }
     }
 
+    private static void setLogHookCallbackImpl(Pointer ptr, int level, String message) {
+        GCHandle handle = GCHandle.fromPtr(ptr);
+        SetLogHookHandler callback = (SetLogHookHandler) handle.getTarget();
+        callback.invoke(level, message);
+    }
+
+    public void setLogHook(LogLevel minLevel, SetLogHookHandler callback) {
+        if (setLogHook != null && setLogHook.isAllocated()) {
+            setLogHook.free();
+        }
+
+        setLogHook = GCHandle.alloc(callback);
+        methods.setLogHook.invoke(methodsPtr, minLevel.getCode(), setLogHook.toPtr(), DiscordGameSDK::setLogHookCallbackImpl);
+    }
+
     public static void main(String[] args) {
         DiscordGameSDK discord = new DiscordGameSDK(7L, CreateFlags.Default);
+
+        discord.setLogHook(LogLevel.Debug, (level, message) -> {
+            System.out.println("Received log: " + level + " - " + message);
+        });
+
+        discord.runCallbacks();
+
         discord.dispose();
     }
 }

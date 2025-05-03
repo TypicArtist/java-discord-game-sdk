@@ -1,7 +1,7 @@
 package net.typicartist.discord.game.sdk.exception;
 
 import net.typicartist.discord.game.sdk.constants.Result;
-import net.typicartist.discord.game.sdk.utils.EnumUtil;
+import net.typicartist.discord.game.sdk.util.common.EnumUtil;
 
 public class ResultException extends RuntimeException {
     private final Result result;

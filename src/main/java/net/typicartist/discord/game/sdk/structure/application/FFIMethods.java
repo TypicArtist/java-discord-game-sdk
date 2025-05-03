@@ -1,11 +1,9 @@
 package net.typicartist.discord.game.sdk.structure.application;
 
 import java.util.List;
-
 import com.sun.jna.Callback;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
-
 import net.typicartist.discord.game.sdk.structure.OAuth2Token;
 
 public class FFIMethods extends Structure {
