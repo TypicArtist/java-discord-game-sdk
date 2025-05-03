@@ -12,7 +12,6 @@ import net.typicartist.discord.game.sdk.exception.ResultException;
 import net.typicartist.discord.game.sdk.structure.FFICreateParams;
 import net.typicartist.discord.game.sdk.structure.application.FFIEvents;
 import net.typicartist.discord.game.sdk.structure.core.FFIMethods;
-import net.typicartist.discord.game.sdk.utils.EnumUtil;
 import net.typicartist.discord.game.sdk.utils.GCHandle;
 
 public class DiscordGameSDK {
@@ -142,13 +141,12 @@ public class DiscordGameSDK {
 
         PointerByReference managerRef = new PointerByReference();
         int result = DiscordGameSDKLibrary.INSTANCE.DiscordCreate(3, createParams, managerRef);
+        methodsPtr = managerRef.getValue();
 
         if (result != Result.Ok.getCode()) {
             this.dispose();
             throw new ResultException(result);
         }
-
-        methodsPtr = managerRef.getValue();
     }
 
     private void initEvents(Pointer eventsPtr, FFIEvents events) {
