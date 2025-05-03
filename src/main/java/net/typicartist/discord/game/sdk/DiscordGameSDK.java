@@ -160,7 +160,7 @@ public class DiscordGameSDK {
         methods = MethodsAccessor.getMethods(methodsPtr, FFIMethods.class);
     }
 
-    public static DiscordGameSDK initialize(long clientId, CreateFlags flags) {
+    public static DiscordGameSDK initialize(long clientId, CreateFlags flags, String path) {
         return new DiscordGameSDK(clientId, flags);
     }
 
@@ -211,7 +211,7 @@ public class DiscordGameSDK {
     }
 
     public static void main(String[] args) {
-        DiscordGameSDK discord = DiscordGameSDK.initialize(1120354582418165780L, CreateFlags.Default);
+        DiscordGameSDK discord = DiscordGameSDK.initialize(1120354582418165780L, CreateFlags.Default, "discord-game-sdk");
 
         discord.setLogHook(LogLevel.Debug, new DiscordGameSDK.SetLogHookHandler() {
             @Override
